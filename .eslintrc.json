@@ -1,0 +1,31 @@
+{
+  "extends": ["next/core-web-vitals", "@next/next/recommended"],
+  "rules": {
+    "no-unused-vars": "warn", // Gentle for dev
+    "no-console": "warn", // Log freely, but flag
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off" // Relax for MVP; tighten later
+      }
+    },
+    {
+      "files": ["tests/**/*.test.tsx"],
+      "rules": {
+        "@typescript-eslint/no-mock-fn-async-returns-value": "off" // Vitest happy
+      }
+    }
+  ],
+  "settings": {
+    "next": {
+      "rootDir": "./",
+      "rootDirIncludeFiles": ["next-env.d.ts"]
+    }
+  }
+}
