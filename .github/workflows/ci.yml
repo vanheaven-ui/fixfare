@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
       - name: Install deps
         run: pnpm install --frozen-lockfile
       - name: Lint
@@ -27,13 +27,13 @@ jobs:
       - name: Prisma generate
         run: pnpm prisma:generate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Add in GitHub repo secrets
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       - name: Test
         run: pnpm test:coverage
       - name: Build
         run: pnpm build
 
-  deploy-preview:  # Vercel auto-links, but stub for manual
+  deploy-preview:
     if: github.ref == 'refs/heads/develop'
     needs: test
     runs-on: ubuntu-latest
