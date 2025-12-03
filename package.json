@@ -1,0 +1,45 @@
+{
+  "name": "fixfare",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "type-check": "tsc --noEmit",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "mongodb": "^7.0.0",
+    "next": "16.0.6",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/ui": "^4.0.15",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.6",
+    "happy-dom": "^20.0.11",
+    "jsdom": "^27.2.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.0.15"
+  },
+  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
+}

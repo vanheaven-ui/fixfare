@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+}
+
+model User {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  email           String   @unique
+  name            String?
+  role            Role     @default(RIDER)
+  
+  // Named back-relations to Quote
+  riderQuotes     Quote[]  @relation("RiderQuotes")
+  mechanicQuotes  Quote[]  @relation("MechanicQuotes")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model VehicleType {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  repairs   Repair[]
+}
+
+model Repair {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  vehicleTypeId   String      @db.ObjectId
+  vehicleType     VehicleType @relation(fields: [vehicleTypeId], references: [id])
+  priceRange      Json
+  quotes          Quote[]
+}
+
+model Quote {
+  id              String      @id @default(auto()) @map("_id") @db.ObjectId
+  repairId        String      @db.ObjectId
+  userId          String?     @db.ObjectId // Foreign key for the Rider
+  mechanicId      String?     @db.ObjectId // Foreign key for the Mechanic
+  status          QuoteStatus @default(PENDING)
+  expectedRange   Json
+  counterQuote    Json?
+  shareLink       String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  // Named relations to User
+  user            User?       @relation("RiderQuotes", fields: [userId], references: [id])
+  repair          Repair      @relation(fields: [repairId], references: [id])
+  mechanic        User?       @relation("MechanicQuotes", fields: [mechanicId], references: [id])
+}
+
+enum Role {
+  RIDER
+  MECHANIC
+  ADMIN
+}
+
+enum QuoteStatus {
+  PENDING
+  COUNTERED
+  APPROVED
+  COMPLETED
+}
