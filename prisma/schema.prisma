@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -27,12 +28,14 @@ model VehicleType {
 }
 
 model Repair {
-  id              String      @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  vehicleTypeId   String      @db.ObjectId
-  vehicleType     VehicleType @relation(fields: [vehicleTypeId], references: [id])
-  priceRange      Json
-  quotes          Quote[]
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  vehicleTypeId String    @db.ObjectId
+  vehicleType   VehicleType @relation(fields: [vehicleTypeId], references: [id])
+  priceRange    Json
+  quotes        Quote[]
+
+  @@unique([name, vehicleTypeId])  // Enables name_vehicleTypeId compound key
 }
 
 model Quote {
