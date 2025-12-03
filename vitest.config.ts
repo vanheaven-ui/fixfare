@@ -18,7 +18,14 @@ export default defineConfig({
     globals: true,
     // Runs your setup file before every test suite
     setupFiles: ["./tests/setup.ts"],
-
+    // Includes only relevant test files
+    include: ["tests/**/*.{test,spec}.{ts,tsx}"],
+    // Excludes irrelevant files from test discovery
+    exclude: ["node_modules/", "dist/"],
+    // Snapshot format options for better JSX handling (no escapeDollar—invalid prop)
+    snapshotFormat: {
+      printBasicPrototype: false, // Keeps snapshots clean (Vitest default; set true for more verbose)
+    },
     // Configuration for test coverage reporting
     coverage: {
       provider: "v8", // Recommended V8 provider for speed
@@ -27,14 +34,24 @@ export default defineConfig({
       include: ["app/**", "components/**", "lib/**"],
       // Files to exclude from coverage reporting
       exclude: ["node_modules/", "tests/"],
+      // Enforce minimum coverage thresholds (fails tests if below)
+      thresholds: {
+        lines: 80,
+        statements: 80,
+        functions: 80,
+        branches: 80,
+      },
     },
   },
 
   // Resolve configuration for handling module imports
   resolve: {
-    // Defines the path alias '@' to point to the project root directory
+    // Defines the path alias '@' to point to the project root directory (matches tsconfig.json)
     alias: {
       "@": path.resolve(__dirname, "./"),
+      // Optional sub-aliases for common dirs (extend as needed)
+      "@/components": path.resolve(__dirname, "./components"),
+      "@/lib": path.resolve(__dirname, "./lib"),
     },
   },
 });
