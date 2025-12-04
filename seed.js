@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */ // FIX: Disable the rule for this JS file (CommonJS require allowed in CLI script)
+
 const { PrismaClient } = require("@prisma/client");
 
 const repairData = [

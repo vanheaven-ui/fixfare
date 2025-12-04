@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Create quote (unchanged)
+// POST: Create quote
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     const quote = await prisma.quote.create({
       data: {
         repairId: repair.id,
-        expectedRange: repair.priceRange as any,
+        expectedRange: repair.priceRange as Prisma.InputJsonValue,
         shareLink,
         status: "PENDING",
       },

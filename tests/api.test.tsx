@@ -45,7 +45,8 @@ const mockCookies = {
  * Creates a mock object satisfying the NextRequest interface.
  * Includes json() and text() methods to simulate request body parsing.
  */
-function createMockNextRequest(body: any): NextRequest {
+function createMockNextRequest(body: Record<string, unknown>): NextRequest {
+  // FIX: Record<string, unknown> instead of any (satisfies no-explicit-any)
   const jsonBody = body;
 
   return {
