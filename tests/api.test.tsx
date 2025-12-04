@@ -1,8 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
-import { POST } from "@/app/api/quotes/route";
-import { prisma } from "@/lib/db";
 import type { NextRequest } from "next/server";
-
+import { POST } from "../app/api/quotes/route";
+import { prisma } from "../lib/db";
 // -----------------------------------------------------------------------------
 // Prisma Mock
 // -----------------------------------------------------------------------------
