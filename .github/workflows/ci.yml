@@ -4,25 +4,19 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main, develop]
-
-permissions:
-  contents: read
-  pull-requests: write
+    branches: [main]
 
 jobs:
   test:
-    name: Run Tests & Quality Checks
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
+      # Use PNPM version from package.json
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
-        with:
-          version: latest
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,7 +24,7 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Lint
@@ -44,46 +38,20 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Run Tests
+      - name: Run Tests with Coverage
         run: pnpm test:coverage
 
-      - name: Build App
+      - name: Build Project
         run: pnpm build
 
   deploy-preview:
-    name: Deploy Preview (Develop Branch)
+    # Only run on develop branch pushes
     if: github.ref == 'refs/heads/develop'
     needs: test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy to Vercel (Preview)
-        run: >
-          npx vercel --token=${{ secrets.VERCEL_TOKEN }}
-          --project=${{ secrets.VERCEL_PROJECT_ID }}
-          --org=${{ secrets.VERCEL_ORG_ID }}
-          --prod=false --confirm
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-  deploy-prod:
-    name: Deploy Production (Main Branch)
-    if: github.ref == 'refs/heads/main'
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Deploy to Vercel (Production)
-        run: >
-          npx vercel --token=${{ secrets.VERCEL_TOKEN }}
-          --project=${{ secrets.VERCEL_PROJECT_ID }}
-          --org=${{ secrets.VERCEL_ORG_ID }}
-          --prod --confirm
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Preview Deployment Placeholder
+        run: |
+          echo "Preview deployment would happen here."
+          echo "Integrate Vercel CLI or Vercel Action when ready."
