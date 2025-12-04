@@ -4,38 +4,86 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   test:
+    name: Run Tests & Quality Checks
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
         with:
           version: latest
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-      - name: Install deps
+
+      - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+
       - name: Lint
         run: pnpm lint
-      - name: Type check
+
+      - name: Type Check
         run: pnpm type-check
-      - name: Prisma generate
+
+      - name: Prisma Generate
         run: pnpm prisma:generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      - name: Test
+
+      - name: Run Tests
         run: pnpm test:coverage
-      - name: Build
+
+      - name: Build App
         run: pnpm build
 
   deploy-preview:
+    name: Deploy Preview (Develop Branch)
     if: github.ref == 'refs/heads/develop'
     needs: test
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "Deploy to preview: vercel --prod=false"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (Preview)
+        run: >
+          npx vercel --token=${{ secrets.VERCEL_TOKEN }}
+          --project=${{ secrets.VERCEL_PROJECT_ID }}
+          --org=${{ secrets.VERCEL_ORG_ID }}
+          --prod=false --confirm
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  deploy-prod:
+    name: Deploy Production (Main Branch)
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (Production)
+        run: >
+          npx vercel --token=${{ secrets.VERCEL_TOKEN }}
+          --project=${{ secrets.VERCEL_PROJECT_ID }}
+          --org=${{ secrets.VERCEL_ORG_ID }}
+          --prod --confirm
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
