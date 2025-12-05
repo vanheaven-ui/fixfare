@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
@@ -13,14 +13,14 @@ const quoteSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId"); // Optional filter for rider history
+    const userId = searchParams.get("userId");
 
     const quotes = await prisma.quote.findMany({
-      where: userId ? { userId } : {}, // Filter by user if provided
+      where: userId ? { userId } : {},
       include: {
         repair: { include: { vehicleType: true } },
-        user: { select: { name: true } }, // Rider name
-        mechanic: { select: { name: true } }, // Mechanic name
+        user: { select: { name: true } },
+        mechanic: { select: { name: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     const shareLink = uuidv4().slice(0, 8);
+
     const quote = await prisma.quote.create({
       data: {
         repairId: repair.id,
@@ -72,7 +73,9 @@ export async function POST(request: NextRequest) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues }, { status: 400 });
     }
+
     console.error("Quote gen error:", error);
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+// 1. Import the Prisma client types
+import { Prisma } from "@prisma/client";
 
 // Define the TypeScript interface for the JSON field
 interface PriceRange {
@@ -6,7 +8,15 @@ interface PriceRange {
   max: number;
 }
 
+// 2. Define the complex type for the query result
+// This type utility tells TypeScript exactly what the result of the findMany query is.
+type RepairWithVehicle = Prisma.RepairGetPayload<{
+  include: { vehicleType: true };
+}>;
+
 export default async function Admin() {
+  // The 'repairs' constant now correctly infers its type from the Prisma call,
+  // which includes the 'vehicleType' relationship.
   const repairs = await prisma.repair.findMany({
     include: { vehicleType: true },
   });
@@ -17,6 +27,7 @@ export default async function Admin() {
       <p className="mb-4 text-gray-600">
         Curated UGX ranges (update via seed.ts).
       </p>
+
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
@@ -25,22 +36,29 @@ export default async function Admin() {
             <th className="border border-gray-300 p-2">Range (UGX)</th>
           </tr>
         </thead>
+
         <tbody>
-          {repairs.map((repair) => (
-            <tr key={repair.id}>
-              <td className="border border-gray-300 p-2">{repair.name}</td>
-              <td className="border border-gray-300 p-2">
-                {repair.vehicleType.name}
-              </td>
-              <td className="border border-gray-300 p-2">
-                {repair.priceRange
-                  ? `${(repair.priceRange as unknown as PriceRange).min} - ${
-                      (repair.priceRange as unknown as PriceRange).max
-                    }`
-                  : "—"}
-              </td>
-            </tr>
-          ))}
+          {/* 3. Explicitly type the parameter 'repair' */}
+          {repairs.map((repair: RepairWithVehicle) => {
+            // PriceRange is stored as a JSON column, so we cast it for access.
+            const range = repair.priceRange as unknown as PriceRange;
+
+            return (
+              <tr key={repair.id}>
+                <td className="border border-gray-300 p-2">{repair.name}</td>
+
+                <td className="border border-gray-300 p-2">
+                  {repair.vehicleType.name}
+                </td>
+
+                <td className="border border-gray-300 p-2">
+                  {range
+                    ? `${range.min.toLocaleString()} - ${range.max.toLocaleString()}`
+                    : "—"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

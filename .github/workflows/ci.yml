@@ -14,7 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Use PNPM version from package.json
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
 
@@ -27,31 +26,25 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Ensure DATABASE_URL exists
+        run: |
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "DATABASE_URL=file:./dev.db" >> $GITHUB_ENV
+          else
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
+          fi
+
+      - name: Generate Prisma Client
+        run: pnpm prisma:generate
+
       - name: Lint
         run: pnpm lint
 
       - name: Type Check
         run: pnpm type-check
 
-      - name: Prisma Generate
-        run: pnpm prisma:generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       - name: Run Tests with Coverage
         run: pnpm test:coverage
 
       - name: Build Project
         run: pnpm build
-
-  deploy-preview:
-    # Only run on develop branch pushes
-    if: github.ref == 'refs/heads/develop'
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Preview Deployment Placeholder
-        run: |
-          echo "Preview deployment would happen here."
-          echo "Integrate Vercel CLI or Vercel Action when ready."

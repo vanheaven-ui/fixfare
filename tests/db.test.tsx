@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
-import { Prisma } from "@prisma/client"; // For typing 'this'
+import type { Prisma } from "@prisma/client"; // For typing 'this'
 
 // vi.mock at top for hoisting
 vi.mock("@prisma/client", () => {

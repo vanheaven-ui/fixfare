@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";  
+import type { Prisma } from "@prisma/client";
 
 // Typed include for relations
 type QuoteWithRelations = Prisma.QuoteGetPayload<{
@@ -20,13 +20,12 @@ export async function GET(
   try {
     const { id } = params;
 
-    // Use findFirst with where (WhereInput, not UniqueInput) – safe for @unique fields
-    const quote = await prisma.quote.findFirst({
+    const quote = (await prisma.quote.findFirst({
       where: { shareLink: id },
       include: {
         repair: { include: { vehicleType: true } },
       },
-    }) as QuoteWithRelations;
+    })) as QuoteWithRelations;
 
     if (!quote) {
       return NextResponse.json({ error: "Quote not found" }, { status: 404 });
@@ -77,7 +76,11 @@ export async function POST(
     const quote = await prisma.quote.update({
       where: { id: existingQuote.id },
       data: {
-        status: status as "PENDING" | "COUNTERED" | "APPROVED" | "COMPLETED",
+        status: status as
+          | "PENDING"
+          | "COUNTERED"
+          | "APPROVED"
+          | "COMPLETED",
         counterQuote:
           typeof counterQuote === "object"
             ? counterQuote
